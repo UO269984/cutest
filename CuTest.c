@@ -131,30 +131,28 @@ void CuTestRun(CuTest* tc) {
 	tc->jumpBuf = 0;
 }
 
-static void CuFailInternal(CuTest* tc, const char* file, int line, CuString* string) {
+static void CuFailInternal(CuTest* tc, const char* file, int line, const char* string) {
 	char buf[HUGE_STRING_LEN];
-	sprintf(buf, "%s:%d: ", file, line);
-	CuStringInsert(string, buf, 0);
+	sprintf(buf, "%s:%d: %s", file, line, string);
 	
 	tc->failed = 1;
 	free(tc->message);
 	tc->message = CuStringNew();
-	CuStringAppend(tc->message, string->buffer);
+	CuStringAppend(tc->message, buf);
 	
 	if (tc->jumpBuf != 0)
 		longjmp(*(tc->jumpBuf), 0);
 }
 
 void CuFail_Line(CuTest* tc, const char* file, int line, const char* message2, const char* message) {
-	CuString string;
+	char buf[HUGE_STRING_LEN];
 	
-	CuStringInit(&string);
-	if (message2 != NULL) {
-		CuStringAppend(&string, message2);
-		CuStringAppend(&string, ": ");
-	}
-	CuStringAppend(&string, message);
-	CuFailInternal(tc, file, line, &string);
+	if (message2 != NULL)
+		sprintf(buf, "%s: %s", message2, message);
+	else
+		sprintf(buf, "%s", message);
+	
+	CuFailInternal(tc, file, line, buf);
 }
 
 void CuAssert_Line(CuTest* tc, const char* file, int line, const char* message, int condition) {
@@ -165,24 +163,18 @@ void CuAssert_Line(CuTest* tc, const char* file, int line, const char* message, 
 void CuAssertStrEquals_LineMsg(CuTest* tc, const char* file, int line, const char* message,
 	const char* expected, const char* actual) {
 	
-	CuString string;
+	char buf[HUGE_STRING_LEN];
 	if ((expected == NULL && actual == NULL) ||
 		(expected != NULL && actual != NULL && strcmp(expected, actual) == 0)) {
 		
 		return;
 	}
+	if (message != NULL)
+		sprintf(buf, "%s: expected <%s> but was <%s>", message, expected, actual);
+	else
+		sprintf(buf, "expected <%s> but was <%s>", expected, actual);
 	
-	CuStringInit(&string);
-	if (message != NULL) {
-		CuStringAppend(&string, message);
-		CuStringAppend(&string, ": ");
-	}
-	CuStringAppend(&string, "expected <");
-	CuStringAppend(&string, expected);
-	CuStringAppend(&string, "> but was <");
-	CuStringAppend(&string, actual);
-	CuStringAppend(&string, ">");
-	CuFailInternal(tc, file, line, &string);
+	CuFailInternal(tc, file, line, buf);
 }
 
 void CuAssertIntEquals_LineMsg(CuTest* tc, const char* file, int line, const char* message,
