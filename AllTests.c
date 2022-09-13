@@ -1,26 +1,34 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "CuTest.h"
 
 CuSuite* CuGetSuite(void);
 CuSuite* CuStringGetSuite(void);
 
-int RunAllTests(void)
-{
+int RunAllTests(void) {
 	CuString *output = CuStringNew();
 	CuSuite* suite = CuSuiteNew();
-
-	CuSuiteAddSuite(suite, CuGetSuite());
-	CuSuiteAddSuite(suite, CuStringGetSuite());
-
+	
+	CuSuite* auxSuite = CuGetSuite();
+	CuSuiteAddSuite(suite, auxSuite);
+	free(auxSuite);
+	
+	auxSuite = CuStringGetSuite();
+	CuSuiteAddSuite(suite, auxSuite);
+	free(auxSuite);
+	
 	CuSuiteRun(suite);
 	CuSuiteSummary(suite, output);
 	CuSuiteDetails(suite, output);
 	printf("%s\n", output->buffer);
-	return suite->failCount;
+	
+	int failCount = suite->failCount;
+	CuSuiteDelete(suite);
+	CuStringDelete(output);
+	return failCount;
 }
 
-int main(void)
-{
+int main() {
 	return RunAllTests();
 }
