@@ -1,4 +1,8 @@
 *~
 
+cuTest.a
+cuTestCPP.a
+CuTestTest
 config
-bin
+bin/
+binCpp/

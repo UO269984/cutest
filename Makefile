@@ -1,18 +1,42 @@
-# I am not very good at Makefiles.
+CC := gcc
+CXX := gcc
+CFLAGS = -Wall -c -o $@
+DEFINES := -D CPP_SUPPORT
 
-CFLAGS += -Wall -g
-INCLUDES = -I.
+.PHONY: all
+all: cuTest.a cuTestCPP.a CuTestTest
 
-all: bin/CuTestTest
+.PHONY: buildFolders
+buildFolders:
+	mkdir -p bin
+	mkdir -p binCpp
 
-bin:
-	mkdir -p $@
+.PHONY: test
+test: CuTestTest
+	@./CuTestTest
 
-test: bin/CuTestTest
-	@bin/CuTestTest
+CuTestTest: bin/AllTests.o bin/CuTestTest.o cuTest.a
+	$(CC) -o $@ $^
 
-bin/CuTestTest: AllTests.c CuTestTest.c CuTest.c | bin
-	$(CC) $(CFLAGS) $(INCLUDES) -Wno-address -lm -o $@ $^
+cuTest.a: bin/CuTest.o
+	ar rcs $@ $^
 
+cuTestCPP.a: binCpp/CuTest.o binCpp/CuTestCPP.o
+	ar rcs $@ $^
+
+bin/%.o: %.c
+	$(CC) $(CFLAGS) $<
+
+binCpp/CuTest.o: CuTest.c
+	$(CXX) -x c++ $(DEFINES) $(CFLAGS) $<
+
+binCpp/CuTestCPP.o: CuTestCPP.cpp
+	$(CXX) $(DEFINES) $(CFLAGS) $<
+
+.PHONY: clean
 clean:
-	@rm -rf *~ bin
+	rm -f bin/*
+	rm -f binCpp/*
+	rm -f cuTest.a
+	rm -f cuTestCPP.a
+	rm -f CuTestTest

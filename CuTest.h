@@ -31,6 +31,7 @@ void CuStringAppend(CuString* str, const char* text);
 void CuStringAppendChar(CuString* str, char ch);
 void CuStringAppendFormat(CuString* str, const char* format, ...);
 void CuStringInsert(CuString* str, const char* text, size_t pos);
+void CuStringClear(CuString* str);
 void CuStringResize(CuString* str, size_t newSize);
 void CuStringDelete(CuString* str);
 
@@ -38,7 +39,12 @@ void CuStringDelete(CuString* str);
 
 typedef struct CuTest CuTest;
 
-typedef void (*TestFunction)(CuTest *);
+#ifdef CPP_SUPPORT
+#include <functional>
+typedef std::function<void(CuTest*)> TestFunction;
+#else
+typedef void (*TestFunction)(CuTest *);	
+#endif
 
 struct CuTest {
 	char* name;
@@ -92,7 +98,8 @@ void CuAssertPtrEquals_LineMsg(CuTest* tc,
 
 #define MAX_TEST_CASES 1024
 
-#define SUITE_ADD_TEST(SUITE,TEST) CuSuiteAdd(SUITE, CuTestNew(#TEST, TEST))
+#define SUITE_ADD_TEST(SUITE, TEST) CuSuiteAdd(SUITE, CuTestNew(#TEST, TEST))
+#define SUITE_ADD_TEST_NAME(SUITE, TEST, NAME) CuSuiteAdd(SUITE, CuTestNew(NAME, TEST))
 
 typedef struct {
 	int count;

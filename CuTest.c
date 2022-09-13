@@ -49,6 +49,11 @@ void CuStringDelete(CuString *str) {
 	}
 }
 
+void CuStringClear(CuString* str) {
+	str->length = 0;
+	str->buffer[0] = 0;
+}
+
 void CuStringResize(CuString* str, size_t newSize) {
 	str->buffer = (char*) realloc(str->buffer, sizeof(char) * newSize);
 	str->size = newSize;
@@ -121,27 +126,41 @@ void CuTestDelete(CuTest *t) {
 	}
 }
 
+#ifdef CPP_SUPPORT
+void CuTestRun(CuTest* tc) {
+	try {
+		tc->ran = 1;
+		tc->function(tc);
+	}
+	catch (int ex) {}
+}
+#else
 void CuTestRun(CuTest* tc) {
 	jmp_buf buf;
 	tc->jumpBuf = &buf;
 	if (setjmp(buf) == 0) {
 		tc->ran = 1;
-		(tc->function)(tc);
+		tc->function(tc);
 	}
 	tc->jumpBuf = 0;
 }
+#endif
 
 static void CuFailInternal(CuTest* tc, const char* file, int line, const char* string) {
 	char buf[HUGE_STRING_LEN];
 	sprintf(buf, "%s:%d: %s", file, line, string);
 	
 	tc->failed = 1;
-	free(tc->message);
+	CuStringDelete(tc->message);
 	tc->message = CuStringNew();
 	CuStringAppend(tc->message, buf);
 	
+	#ifdef CPP_SUPPORT
+		throw 1;
+	#else
 	if (tc->jumpBuf != 0)
 		longjmp(*(tc->jumpBuf), 0);
+	#endif
 }
 
 void CuFail_Line(CuTest* tc, const char* file, int line, const char* message2, const char* message) {
@@ -169,6 +188,11 @@ void CuAssertStrEquals_LineMsg(CuTest* tc, const char* file, int line, const cha
 		
 		return;
 	}
+	if (expected == NULL)
+		expected = "NULL";
+	if (actual == NULL)
+		actual = "NULL";
+	
 	if (message != NULL)
 		sprintf(buf, "%s: expected <%s> but was <%s>", message, expected, actual);
 	else
