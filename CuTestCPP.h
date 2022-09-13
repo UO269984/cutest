@@ -6,12 +6,12 @@
 #include <list>
 #include <string>
 
-#define GET_TEST_FUNC(CLASS, METHOD) std::bind(&CLASS::METHOD, this, std::placeholders::_1)
+#define GET_TEST_FUNC(CLASS, METHOD) std::bind(&CLASS::METHOD, this)
 #define ADD_TEST(TESTS_VECTOR, CLASS, METHOD) TESTS_VECTOR.emplace_back(GET_TEST_FUNC(CLASS, METHOD), #CLASS "." #METHOD)
 
 struct TestFuncData {
-	TestFuncData(const TestFunction& func, const char* name) : func(func), name(name) {}
-	TestFunction func;
+	TestFuncData(const std::function<void()>& func, const char* name) : func(func), name(name) {}
+	std::function<void()> func;
 	const char* name;
 };
 
@@ -23,6 +23,7 @@ public:
 	virtual void after() {};
 	
 	const std::vector<TestFuncData>* getTestFuncs() const;
+	CuTest* tc;
 
 protected:
 	std::vector<TestFuncData> testFunctions;
@@ -45,7 +46,7 @@ public:
 	void printResult() const;
 
 private:
-	void runTest(CuTest* ct);
+	void runTest(CuTest* tc);
 	void nextTest();
 	
 	CuSuite* suite;

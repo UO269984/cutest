@@ -77,7 +77,24 @@ void CuAssertPtrEquals_LineMsg(CuTest* tc,
 	void* expected, void* actual);
 
 /* public assert functions */
+#ifdef CPP_SUPPORT
+#define CuFail(ms)			CuFail_Line((tc), __FILE__, __LINE__, NULL, (ms))
+#define CuAssert(ms, cond)	CuAssert_Line((tc), __FILE__, __LINE__, (ms), (cond))
+#define CuAssertTrue(cond)	CuAssert_Line((tc), __FILE__, __LINE__, "assert failed", (cond))
 
+#define CuAssertStrEquals(ex, ac)				CuAssertStrEquals_LineMsg((tc), __FILE__, __LINE__, NULL, (ex), (ac))
+#define CuAssertStrEquals_Msg(ms, ex, ac)		CuAssertStrEquals_LineMsg((tc), __FILE__, __LINE__, (ms), (ex), (ac))
+#define CuAssertIntEquals(ex, ac)				CuAssertIntEquals_LineMsg((tc), __FILE__, __LINE__, NULL, (ex), (ac))
+#define CuAssertIntEquals_Msg(ms, ex, ac)		CuAssertIntEquals_LineMsg((tc), __FILE__, __LINE__, (ms), (ex), (ac))
+#define CuAssertDblEquals(ex, ac, dl)			CuAssertDblEquals_LineMsg((tc), __FILE__, __LINE__, NULL, (ex), (ac), (dl))
+#define CuAssertDblEquals_Msg(ms, ex, ac, dl)	CuAssertDblEquals_LineMsg((tc), __FILE__, __LINE__, (ms), (ex), (ac), (dl))
+#define CuAssertPtrEquals(ex, ac)				CuAssertPtrEquals_LineMsg((tc), __FILE__, __LINE__, NULL, (ex), (ac))
+#define CuAssertPtrEquals_Msg(ms, ex, ac)		CuAssertPtrEquals_LineMsg((tc), __FILE__, __LINE__, (ms), (ex), (ac))
+
+#define CuAssertPtrNotNull(p)			CuAssert_Line((tc), __FILE__, __LINE__, "null pointer unexpected", ((p) != NULL))
+#define CuAssertPtrNotNullMsg(msg, p)	CuAssert_Line((tc), __FILE__, __LINE__, (msg), ((p) != NULL))
+
+#else
 #define CuFail(tc, ms)			CuFail_Line((tc), __FILE__, __LINE__, NULL, (ms))
 #define CuAssert(tc, ms, cond)	CuAssert_Line((tc), __FILE__, __LINE__, (ms), (cond))
 #define CuAssertTrue(tc, cond)	CuAssert_Line((tc), __FILE__, __LINE__, "assert failed", (cond))
@@ -94,6 +111,7 @@ void CuAssertPtrEquals_LineMsg(CuTest* tc,
 #define CuAssertPtrNotNull(tc, p)			CuAssert_Line((tc), __FILE__, __LINE__, "null pointer unexpected", ((p) != NULL))
 #define CuAssertPtrNotNullMsg(tc, msg, p)	CuAssert_Line((tc), __FILE__, __LINE__, (msg), ((p) != NULL))
 
+#endif
 /* CuSuite */
 
 #define MAX_TEST_CASES 1024

@@ -19,17 +19,18 @@ void CuSuiteWrapper::addTest(BaseCuTest* test) {
 		baseTests.push_back(test);
 		
 		for (const TestFuncData& funcData : *(testFuncs))
-			SUITE_ADD_TEST_NAME(suite, GET_TEST_FUNC(CuSuiteWrapper, runTest), funcData.name);
+			SUITE_ADD_TEST_NAME(suite, std::bind(&CuSuiteWrapper::runTest, this, std::placeholders::_1), funcData.name);
 	}
 }
 
-void CuSuiteWrapper::runTest(CuTest* ct) {
+void CuSuiteWrapper::runTest(CuTest* tc) {
 	if (testIndex == 0)
 		(*testsIt)->testStart();
 	
+	(*testsIt)->tc = tc;
 	(*testsIt)->before();
 	try {
-		(*(*testsIt)->getTestFuncs())[testIndex++].func(ct);
+		(*(*testsIt)->getTestFuncs())[testIndex++].func();
 	}
 	catch (int ex) {
 		nextTest();
