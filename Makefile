@@ -1,7 +1,6 @@
 CC := gcc
 CXX := gcc
 CFLAGS = -Wall -c -o $@
-DEFINES := -D CPP_SUPPORT
 
 .PHONY: all
 all: cuTest.a cuTestCPP.a CuTestTest
@@ -28,10 +27,10 @@ bin/%.o: %.c
 	$(CC) $(CFLAGS) $<
 
 binCpp/CuTest.o: CuTest.c
-	$(CXX) -x c++ $(DEFINES) $(CFLAGS) $<
+	$(CXX) -x c++ -D CPP_SUPPORT $(CFLAGS) $<
 
 binCpp/CuTestCPP.o: CuTestCPP.cpp
-	$(CXX) $(DEFINES) $(CFLAGS) $<
+	$(CXX) $(CFLAGS) $<
 
 .PHONY: clean
 clean:

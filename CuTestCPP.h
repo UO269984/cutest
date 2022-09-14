@@ -1,5 +1,6 @@
 #pragma once
 
+#define CPP_SUPPORT
 #include "CuTest.h"
 
 #include <vector>
