@@ -1,8 +1,10 @@
 *~
 
-cuTest.a
-cuTestCPP.a
+*.a
+*.lib
 CuTestTest
+CuTestTest.exe
+
 config
 bin/
 binCpp/

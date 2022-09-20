@@ -1,9 +1,17 @@
 CC := gcc
 CXX := gcc
+AR := ar
 CFLAGS = -Wall -c -o $@
 
+LIB_EXT := $(if $(filter-out $(OS),Windows_NT),a,lib)
+CUTEST_LIB := cuTest.$(LIB_EXT)
+CUTEST_CPP_LIB := cuTestCPP.$(LIB_EXT)
+
+EXEC_EXT := $(if $(filter-out $(OS),Windows_NT),,.exe)
+TEST_EXEC := CuTestTest$(EXEC_EXT)
+
 .PHONY: all
-all: cuTest.a cuTestCPP.a CuTestTest
+all: $(CUTEST_LIB) $(CUTEST_CPP_LIB) $(TEST_EXEC)
 
 .PHONY: buildFolders
 buildFolders:
@@ -11,17 +19,17 @@ buildFolders:
 	mkdir -p binCpp
 
 .PHONY: test
-test: CuTestTest
-	@./CuTestTest
+test: $(TEST_EXEC)
+	@./$(TEST_EXEC)
 
-CuTestTest: bin/AllTests.o bin/CuTestTest.o cuTest.a
+$(TEST_EXEC): bin/AllTests.o bin/CuTestTest.o $(CUTEST_LIB)
 	$(CC) -o $@ $^
 
-cuTest.a: bin/CuTest.o
-	ar rcs $@ $^
+$(CUTEST_LIB): bin/CuTest.o
+	$(AR) rcs $@ $^
 
-cuTestCPP.a: binCpp/CuTest.o binCpp/CuTestCPP.o
-	ar rcs $@ $^
+$(CUTEST_CPP_LIB): binCpp/CuTest.o binCpp/CuTestCPP.o
+	$(AR) rcs $@ $^
 
 bin/%.o: %.c
 	$(CC) $(CFLAGS) $<
@@ -36,6 +44,6 @@ binCpp/CuTestCPP.o: CuTestCPP.cpp
 clean:
 	rm -f bin/*
 	rm -f binCpp/*
-	rm -f cuTest.a
-	rm -f cuTestCPP.a
-	rm -f CuTestTest
+	rm -f $(CUTEST_LIB)
+	rm -f $(CUTEST_CPP_LIB)
+	rm -f $(TEST_EXEC)
