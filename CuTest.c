@@ -120,6 +120,10 @@ CuTest* CuTestNew(const char* name, TestFunction function) {
 
 void CuTestDelete(CuTest *t) {
 	if (t != NULL) {
+		#ifdef CPP_SUPPORT
+		t->function.~TestFunction();
+		#endif
+		
 		CuStringDelete(t->message);
 		free(t->name);
 		free(t);

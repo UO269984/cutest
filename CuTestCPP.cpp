@@ -19,7 +19,7 @@ void CuSuiteWrapper::addTest(BaseCuTest* test) {
 		baseTests.push_back(test);
 		
 		for (const TestFuncData& funcData : *(testFuncs))
-			SUITE_ADD_TEST_NAME(suite, std::bind(&CuSuiteWrapper::runTest, this, std::placeholders::_1), funcData.name);
+			SUITE_ADD_TEST_NAME(suite, [this](CuTest* tc) {this->runTest(tc);}, funcData.name);
 	}
 }
 
